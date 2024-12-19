@@ -12,22 +12,27 @@ app.use(express.json());
 
 // routes
 app.get('/', (req, res) => {
-  res.send('jobs api');
+	res.send('jobs api');
 });
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 3000;
-
 const start = async () => {
-  try {
-    app.listen(port, () =>
-      console.log(`Server is listening on port ${port}...`)
-    );
-  } catch (error) {
-    console.log(error);
-  }
+	try {
+		// await connectDatabase(process.env.MONGO_URI);
+		app.listen(port, err => {
+			if (err) {
+				console.error(`Could not start server on port ${port}.`);
+				throw err;
+			}
+			console.log(`Server listening on port ${port}.`);
+			console.log(`Access at: http://localhost:${port}`);
+		});
+	} catch (error) {
+		console.error(error);
+	}
 };
 
 start();
