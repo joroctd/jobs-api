@@ -10,12 +10,12 @@ module.exports = {
 		res.status(StatusCodes.OK).json({ jobs, count: jobs.length });
 	},
 	getJob: async (req, res) => {
-		const job = await Job.find({
+		const job = await Job.findOne({
 			createdBy: req.user?.userId,
 			_id: req.params.id
 		});
 
-		if (!job?.length) {
+		if (!job) {
 			throw new NotFoundError('Job not found.');
 		}
 
@@ -44,7 +44,7 @@ module.exports = {
 			{ new: true, runValidators: true }
 		);
 
-		if (!job?.length) {
+		if (!job) {
 			throw new NotFoundError('Job not found.');
 		}
 
@@ -56,7 +56,7 @@ module.exports = {
 			_id: req.params.id
 		});
 
-		if (!job?.length) {
+		if (!job) {
 			throw new NotFoundError('Job not found.');
 		}
 
