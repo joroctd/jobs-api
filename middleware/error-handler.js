@@ -29,13 +29,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
 		customError.status = 404;
 	}
 
-	const keyValueString = 'keyValue';
-	if (
-		err.code === mongoErrors.DUPLICATE &&
-		err.hasOwnProperty(keyValueString)
-	) {
+	if (err.code === mongoErrors.DUPLICATE) {
 		customError.msg = `Duplicate value entered for ${Object.keys(
-			err[keyValueString]
+			err.keyValue
 		)}.`;
 		customError.status = 400;
 	}
