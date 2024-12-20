@@ -28,11 +28,9 @@ module.exports = {
 		res.status(StatusCodes.CREATED).json({ job });
 	},
 	updateJob: async (req, res) => {
-		const { company, position } = req.body;
-		if (company === '' || position === '') {
-			throw new BadRequestError(
-				'Company or position cannot be an empty string.'
-			);
+		const { company, position, status } = req.body;
+		if (company === '' || position === '' || status === '') {
+			throw new BadRequestError('Fields cannot be an empty string.');
 		}
 
 		const job = await Job.findOneAndUpdate(
@@ -40,7 +38,7 @@ module.exports = {
 				createdBy: req.user?.userId,
 				_id: req.params.id
 			},
-			{ company, position },
+			{ company, position, status },
 			{ new: true, runValidators: true }
 		);
 
