@@ -14,7 +14,7 @@ const JobSchema = new mongoose.Schema(
 		},
 		status: {
 			type: String,
-			enum: ['previous', 'current', 'future', 'pending'],
+			enum: ['previous', 'currrent', 'future', 'pending'],
 			default: 'pending'
 		},
 		createdBy: {

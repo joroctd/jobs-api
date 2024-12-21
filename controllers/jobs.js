@@ -10,12 +10,12 @@ module.exports = {
 		res.status(StatusCodes.OK).json({ jobs, count: jobs.length });
 	},
 	getJob: async (req, res) => {
-		const job = await Job.findOne({
+		const job = await Job.find({
 			createdBy: req.user?.userId,
 			_id: req.params.id
 		});
 
-		if (!job) {
+		if (!job?.length) {
 			throw new NotFoundError('Job not found.');
 		}
 
@@ -28,9 +28,11 @@ module.exports = {
 		res.status(StatusCodes.CREATED).json({ job });
 	},
 	updateJob: async (req, res) => {
-		const { company, position, status } = req.body;
-		if (company === '' || position === '' || status === '') {
-			throw new BadRequestError('Fields cannot be an empty string.');
+		const { company, position } = req.body;
+		if (company === '' || position === '') {
+			throw new BadRequestError(
+				'Company or position cannot be an empty string.'
+			);
 		}
 
 		const job = await Job.findOneAndUpdate(
@@ -38,11 +40,11 @@ module.exports = {
 				createdBy: req.user?.userId,
 				_id: req.params.id
 			},
-			{ company, position, status },
+			{ company, position },
 			{ new: true, runValidators: true }
 		);
 
-		if (!job) {
+		if (!job?.length) {
 			throw new NotFoundError('Job not found.');
 		}
 
@@ -54,7 +56,7 @@ module.exports = {
 			_id: req.params.id
 		});
 
-		if (!job) {
+		if (!job?.length) {
 			throw new NotFoundError('Job not found.');
 		}
 
