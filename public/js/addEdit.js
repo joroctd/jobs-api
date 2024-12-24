@@ -63,6 +63,8 @@ export const handleAddEdit = () => {
 					message.textContent = 'A communication error occurred.';
 				}
 				enableInput(true);
+			} else if (e.target === editCancel) {
+				showJobs();
 			}
 		}
 	});
