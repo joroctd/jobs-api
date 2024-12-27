@@ -1,13 +1,7 @@
-import {
-	inputEnabled,
-	setDiv,
-	message,
-	token,
-	enableInput,
-	setToken
-} from './index.js';
+import { inputEnabled, setDiv, message, setToken } from './index.js';
 import { showLoginRegister } from './loginRegister.js';
 import { showJobs } from './jobs.js';
+import handleRequestResponse from './api/handleRequestResponse.js';
 
 let registerDiv = null;
 let name = null;
@@ -25,28 +19,39 @@ export const handleRegister = () => {
 	const registerCancel = document.getElementById('register-cancel');
 
 	registerDiv.addEventListener('click', async e => {
-		if (inputEnabled && e.target.nodeName === 'BUTTON') {
-			if (e.target === registerButton) {
-				if (password1.value != password2.value) {
-					message.textContent = 'The passwords entered do not match.';
-				} else {
-					enableInput(false);
+		if (!inputEnabled || e.target.nodeName !== 'BUTTON') {
+			return;
+		}
 
-					try {
-						const response = await fetch('/api/v1/auth/register', {
-							method: 'POST',
-							headers: {
-								'Content-Type': 'application/json'
-							},
-							body: JSON.stringify({
-								name: name.value,
-								email: email1.value,
-								password: password1.value
-							})
-						});
+		if (e.target === registerCancel) {
+			name.value = '';
+			email1.value = '';
+			password1.value = '';
+			password2.value = '';
+			showLoginRegister();
+			return;
+		}
 
-						const data = await response.json();
-						if (response.status === 201) {
+		if (e.target === registerButton) {
+			if (password1.value != password2.value) {
+				message.textContent = 'The passwords entered do not match.';
+				return;
+			}
+
+			await handleRequestResponse({
+				requestOptions: {
+					endpoint: 'auth/register',
+					method: 'POST',
+					body: {
+						name: name.value,
+						email: email1.value,
+						password: password1.value
+					}
+				},
+				shouldGetData: true,
+				responseOptions: {
+					statusActions: {
+						201: data => {
 							message.textContent = `Registration successful.  Welcome ${data.user.name}`;
 							setToken(data.token);
 
@@ -56,23 +61,13 @@ export const handleRegister = () => {
 							password2.value = '';
 
 							showJobs();
-						} else {
-							message.textContent = data.msg;
 						}
-					} catch (err) {
-						console.error(err);
-						message.textContent = 'A communications error occurred.';
+					},
+					onFail: data => {
+						message.textContent = data.msg;
 					}
-
-					enableInput(true);
 				}
-			} else if (e.target === registerCancel) {
-				name.value = '';
-				email1.value = '';
-				password1.value = '';
-				password2.value = '';
-				showLoginRegister();
-			}
+			});
 		}
 	});
 };

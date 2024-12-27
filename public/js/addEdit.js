@@ -1,5 +1,6 @@
-import { enableInput, inputEnabled, message, setDiv, token } from './index.js';
+import { inputEnabled, message, setDiv } from './index.js';
 import { showJobs } from './jobs.js';
+import handleRequestResponse from './api/handleRequestResponse.js';
 
 let addEditDiv = null;
 let company = null;
@@ -16,56 +17,51 @@ export const handleAddEdit = () => {
 	const editCancel = document.getElementById('edit-cancel');
 
 	addEditDiv.addEventListener('click', async e => {
-		if (inputEnabled && e.target.nodeName === 'BUTTON') {
-			if (e.target === addingJob) {
-				enableInput(false);
+		if (!inputEnabled || e.target.nodeName !== 'BUTTON') return;
 
-				let method = 'POST';
-				let url = '/api/v1/jobs';
-				if (addingJob.textContent === 'update') {
-					method = 'PATCH';
-					url = `${url}/${addEditDiv.dataset.id}`;
-				}
+		if (e.target === editCancel) {
+			showJobs();
+			return;
+		}
 
-				try {
-					const response = await fetch(url, {
-						method: method,
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${token}`
-						},
-						body: JSON.stringify({
-							company: company.value,
-							position: position.value,
-							status: status.value
-						})
-					});
-
-					const data = await response.json();
-					if (response.status === 200 || response.status === 201) {
-						if (response.status === 200) {
-							// a 200 is expected for a successful update
+		if (e.target === addingJob) {
+			let method = 'POST';
+			let id = null;
+			if (addingJob.textContent === 'update') {
+				method = 'PATCH';
+				id = addEditDiv.dataset.id;
+			}
+			await handleRequestResponse({
+				requestOptions: {
+					method,
+					id,
+					body: {
+						company: company.value,
+						position: position.value,
+						status: status.value
+					}
+				},
+				responseOptions: {
+					statusActions: {
+						200: () => {
 							message.textContent = 'The job entry was updated.';
-						} else {
-							// a 201 is expected for a successful create
+						},
+						201: () => {
 							message.textContent = 'The job entry was created.';
 						}
-
+					},
+					onSuccess: () => {
 						company.value = '';
 						position.value = '';
 						status.value = 'pending';
 						showJobs();
-					} else {
+					},
+					onFail: async response => {
+						const data = await response.json();
 						message.textContent = data.msg;
 					}
-				} catch (err) {
-					console.log(err);
-					message.textContent = 'A communication error occurred.';
 				}
-				enableInput(true);
-			} else if (e.target === editCancel) {
-				showJobs();
-			}
+			});
 		}
 	});
 };
@@ -79,39 +75,31 @@ export const showAddEdit = async jobId => {
 		message.textContent = '';
 
 		setDiv(addEditDiv);
-	} else {
-		enableInput(false);
-
-		try {
-			const response = await fetch(`/api/v1/jobs/${jobId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`
-				}
-			});
-
-			const data = await response.json();
-			if (response.status === 200) {
-				company.value = data.job.company;
-				position.value = data.job.position;
-				status.value = data.job.status;
-				addingJob.textContent = 'update';
-				message.textContent = '';
-				addEditDiv.dataset.id = jobId;
-
-				setDiv(addEditDiv);
-			} else {
-				// might happen if the list has been updated since last display
-				message.textContent = 'The jobs entry was not found';
-				showJobs();
-			}
-		} catch (err) {
-			console.log(err);
-			message.textContent = 'A communications error has occurred.';
-			showJobs();
-		}
-
-		enableInput(true);
+		return;
 	}
+
+	await handleRequestResponse({
+		requestOptions: {
+			id: jobId
+		},
+		responseOptions: {
+			statusActions: {
+				200: async response => {
+					const { job } = await response.json();
+					company.value = job.company;
+					position.value = job.position;
+					status.value = job.status;
+					addingJob.textContent = 'update';
+					message.textContent = '';
+					addEditDiv.dataset.id = jobId;
+					setDiv(addEditDiv);
+				},
+				onFail: () => {
+					message.textContent = 'The jobs entry was not found';
+					showJobs();
+				}
+			}
+		},
+		postError: showJobs
+	});
 };

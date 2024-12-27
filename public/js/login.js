@@ -1,13 +1,7 @@
-import {
-	inputEnabled,
-	setDiv,
-	token,
-	message,
-	enableInput,
-	setToken
-} from './index.js';
+import { inputEnabled, setDiv, message, setToken } from './index.js';
 import { showLoginRegister } from './loginRegister.js';
 import { showJobs } from './jobs.js';
+import handleRequestResponse from './api/handleRequestResponse.js';
 
 let loginDiv = null;
 let email = null;
@@ -21,45 +15,45 @@ export const handleLogin = () => {
 	const logonCancel = document.getElementById('logon-cancel');
 
 	loginDiv.addEventListener('click', async e => {
-		if (inputEnabled && e.target.nodeName === 'BUTTON') {
-			if (e.target === logonButton) {
-				enableInput(false);
+		if (!inputEnabled || e.target.nodeName !== 'BUTTON') {
+			return;
+		}
 
-				try {
-					const response = await fetch('/api/v1/auth/login', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							email: email.value,
-							password: password.value
-						})
-					});
+		if (e.target === logonCancel) {
+			email.value = '';
+			password.value = '';
+			showLoginRegister();
+			return;
+		}
 
-					const data = await response.json();
-					if (response.status === 200) {
-						message.textContent = `Logon successful.  Welcome ${data.user.name}`;
-						setToken(data.token);
+		if (e.target === logonButton) {
+			await handleRequestResponse({
+				requestOptions: {
+					endpoint: 'auth/login',
+					method: 'POST',
+					body: {
+						email: email.value,
+						password: password.value
+					}
+				},
+				shouldGetData: true,
+				responseOptions: {
+					statusActions: {
+						200: data => {
+							message.textContent = `Logon successful.  Welcome ${data.user.name}`;
+							setToken(data.token);
 
-						email.value = '';
-						password.value = '';
+							email.value = '';
+							password.value = '';
 
-						showJobs();
-					} else {
+							showJobs();
+						}
+					},
+					onFail: data => {
 						message.textContent = data.msg;
 					}
-				} catch (err) {
-					console.error(err);
-					message.textContent = 'A communications error occurred.';
 				}
-
-				enableInput(true);
-			} else if (e.target === logonCancel) {
-				email.value = '';
-				password.value = '';
-				showLoginRegister();
-			}
+			});
 		}
 	});
 };
