@@ -40,11 +40,13 @@ app.use(
 				"'self'",
 				// allows Swagger style hashes
 				// REMOVE IF HASHES ARE EVER REMOVED
-				"'unsafe-hashes'",
-				"'sha256-ezdv1bOGcoOD7FKudKN0Y2Mb763O6qVtM8LT2mtanIU='",
-				"'sha256-/jDKvbQ8cdux+c5epDIqkjHbXDaIY8RucT1PmAe8FG4='",
-				"'sha256-BeXIQk2DxxoDrgnnoH683KOnlwQvO0HH1fT4VFQTi8g='",
-				"'sha256-RL3ie0nH+Lzz2YNqQN83mnU0J1ot4QL7b99vMdIX99w='"
+				// "'unsafe-hashes'",
+				// "'sha256-ezdv1bOGcoOD7FKudKN0Y2Mb763O6qVtM8LT2mtanIU='",
+				// "'sha256-/jDKvbQ8cdux+c5epDIqkjHbXDaIY8RucT1PmAe8FG4='",
+				// "'sha256-BeXIQk2DxxoDrgnnoH683KOnlwQvO0HH1fT4VFQTi8g='",
+				// "'sha256-RL3ie0nH+Lzz2YNqQN83mnU0J1ot4QL7b99vMdIX99w='"
+				// LESS RESTRICTIVE than above
+				"'unsafe-inline'"
 			]
 		}
 	}),
@@ -55,11 +57,8 @@ app.use(
 	cors()
 );
 
-app.get('/', (req, res) => {
-	res.send('jobs api');
-});
-
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerYaml));
+app.use(express.static('public'));
 
 const apiRouter = express.Router();
 app.use('/api/v1', apiRouter);
