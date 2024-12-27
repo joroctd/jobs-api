@@ -1,6 +1,6 @@
-#### Hosted (incomplete API docs)
+#### Hosted link
 
-[https://jobs-api-xa97.onrender.com/api/v1](https://jobs-api-xa97.onrender.com/api-docs)
+[https://jobs-api-xa97.onrender.com](https://jobs-api-xa97.onrender.com)
 
 #### Local setup
 
