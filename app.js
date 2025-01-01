@@ -3,7 +3,6 @@ require('express-async-errors');
 const express = require('express');
 const hpp = require('hpp');
 const helmet = require('helmet');
-const cors = require('cors');
 const rateLimiter = require('express-rate-limit');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
@@ -53,8 +52,7 @@ app.use(
 	helmet.noSniff(),
 	helmet.ieNoOpen(),
 	helmet.hidePoweredBy(),
-	hpp(),
-	cors()
+	hpp()
 );
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerYaml));
@@ -68,6 +66,7 @@ apiRouter.use('/jobs', authMiddleware, jobsRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
+process.loadEnvFile('./.env');
 const port = process.env.PORT || 3000;
 const start = async () => {
 	try {
