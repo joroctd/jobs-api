@@ -66,7 +66,6 @@ apiRouter.use('/jobs', authMiddleware, jobsRouter);
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-process.loadEnvFile('./.env');
 const port = process.env.PORT || 3000;
 const start = async () => {
 	try {
