@@ -1,0 +1,145 @@
+# Generated via https://www.postman.com/postman/postman-public-workspace/collection/ijkf7ei/postman-to-swagger-oas-2
+swagger: '2.0'
+info:
+  contact: {}
+  title: 06-Jobs-API
+  version: 1.0.0
+basePath: '/api/v1'
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              email:
+                example: name@domain.com
+                type: string
+              name:
+                example: Name
+                type: string
+              password:
+                example: password
+                type: string
+            type: object
+      responses:
+        '201':
+          description: Created
+      description: POST register
+      operationId: postRegister
+      summary: POST register
+  /auth/login:
+    post:
+      tags:
+        - auth
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              email:
+                example: name@domain.com
+                type: string
+              name:
+                example: Name
+                type: string
+              password:
+                example: password
+                type: string
+            type: object
+      responses:
+        '200':
+          description: OK
+      description: POST login
+      operationId: postLogin
+      summary: POST login
+  /jobs:
+    get:
+      tags:
+        - jobs
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: GET jobs
+      operationId: getJobs
+      summary: GET jobs
+    post:
+      tags:
+        - jobs
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              company:
+                example: CTD
+                type: string
+              position:
+                example: volunteer
+                type: string
+            type: object
+      responses:
+        '201':
+          description: 'Created'
+      description: POST jobs
+      operationId: postJobs
+      summary: POST jobs
+  /jobs/{jobId}:
+    parameters:
+      - in: path
+        name: jobId
+        required: true
+        type: string
+    get:
+      tags:
+        - jobs
+      parameters: []
+      responses:
+        '200':
+          description: OK
+      description: GET job
+      operationId: getJob
+      summary: GET job
+    patch:
+      tags:
+        - jobs
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              company:
+                example: CtD
+                type: string
+              position:
+                example: volunteer+
+                type: string
+            type: object
+      responses:
+        '200':
+          description: OK
+      description: PATCH job
+      operationId: patchJob
+      summary: PATCH job
+    delete:
+      tags:
+        - jobs
+      parameters: []
+      responses:
+        '204':
+          description: NO CONTENT
+      description: DELETE job
+      operationId: deleteJob
+      summary: DELETE job
