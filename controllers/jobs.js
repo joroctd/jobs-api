@@ -9,13 +9,49 @@ module.exports = {
 		);
 		res.json({ jobs, count: jobs.length });
 	},
-	getJob: async (req, res) => {},
+	getJob: async (req, res) => {
+		const job = await Job.findOne({
+			createdBy: req.user?.userId,
+			_id: req.params.id
+		});
+
+		if (!job) throw new NotFoundError('Job not found.');
+
+		res.json({ job });
+	},
 	createJob: async (req, res) => {
 		const newJob = { ...req.body };
 		newJob.createdBy = req.user.userId;
 		const job = await Job.create(newJob);
 		res.status(StatusCodes.CREATED).json({ job });
 	},
-	updateJob: async (req, res) => {},
-	deleteJob: async (req, res) => {}
+	updateJob: async (req, res) => {
+		const { company, position, status } = req.body;
+		if (company === '' || position === '' || status === '') {
+			throw new BadRequestError('Job fields cannot be an empty string.');
+		}
+
+		const job = await Job.findOneAndUpdate(
+			{
+				createdBy: req.user?.userId,
+				_id: req.params.id
+			},
+			{ company, position, status },
+			{ new: true, runValidators: true }
+		);
+
+		if (!job) throw new NotFoundError('Job not found.');
+
+		res.json({ job });
+	},
+	deleteJob: async (req, res) => {
+		const job = await Job.findOneAndDelete({
+			createdBy: req.user?.userId,
+			_id: req.params.id
+		});
+
+		if (!job) throw new NotFoundError('Job not found.');
+
+		res.status(StatusCodes.NO_CONTENT).send();
+	}
 };

@@ -11,7 +11,6 @@ module.exports = async function auth(req, res, next) {
 	}
 
 	const token = authorization.split(' ')[1];
-	console.log(token);
 	try {
 		const payload = jwt.verify(token, process.env.JWT_SECRET);
 		const user = await User.findById(payload.userId).select('name');
