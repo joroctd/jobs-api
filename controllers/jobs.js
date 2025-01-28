@@ -58,6 +58,8 @@ module.exports = {
 			throw new NotFoundError('Job not found.');
 		}
 
+		// SOLUTION EXAMPLE CODE: START
 		res.status(StatusCodes.NO_CONTENT).send();
+		// SOLUTION EXAMPLE CODE: END
 	}
 };

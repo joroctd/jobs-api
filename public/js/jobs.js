@@ -2,6 +2,7 @@ import { inputEnabled, setDiv, message, setToken } from './index.js';
 import { showLoginRegister } from './loginRegister.js';
 import { showAddEdit } from './addEdit.js';
 import handleRequestResponse from './api/handleRequestResponse.js';
+import { token, enableInput } from './index.js';
 
 let jobsDiv = null;
 let jobsTable = null;
@@ -38,33 +39,43 @@ export const handleJobs = () => {
 			return;
 		}
 
+		// SOLUTION EXAMPLE CODE: START
 		if (e.target.classList.contains('deleteButton')) {
 			message.textContent = '';
 			deleteJob(e.target.dataset.id);
 		}
+		// SOLUTION EXAMPLE CODE: END
 	});
 };
 
+// SOLUTION EXAMPLE CODE: START
 const deleteJob = async jobId => {
-	await handleRequestResponse({
-		requestOptions: {
+	enableInput(false);
+
+	try {
+		const response = await fetch(`/api/v1/jobs/${jobId}`, {
 			method: 'DELETE',
-			id: jobId
-		},
-		responseOptions: {
-			statusActions: {
-				204: async () => {
-					message.textContent = `Deleton of job with the id of "${jobId}" was successful.`;
-					await showJobs();
-				}
-			},
-			onFail: async response => {
-				const data = await response.json();
-				message.textContent = data.msg;
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
 			}
+		});
+
+		if (response.status === 204) {
+			message.textContent = `Deletion of job with the id of "${jobId}" was successful.`;
+			await showJobs();
+		} else {
+			const data = await response.json();
+			message.textContent = data.msg;
 		}
-	});
+	} catch (err) {
+		console.error(err);
+		message.textContent = 'A communications error occurred.';
+	}
+
+	enableInput(true);
 };
+// SOLUTION EXAMPLE CODE: END
 
 const tdButton = (purpose, id) =>
 	`<td><button type="button" class="${purpose}Button" data-id=${id}>${purpose}</button></td>`;
@@ -83,6 +94,7 @@ export const showJobs = async () => {
 					for (let job of data.jobs) {
 						let rowEntry = document.createElement('tr');
 
+						// SOLUTION EXAMPLE CODE: START
 						let editButton = tdButton('edit', job._id);
 						let deleteButton = tdButton('delete', job._id);
 						let rowHTML = `
@@ -90,7 +102,7 @@ export const showJobs = async () => {
 						  <td>${job.position}</td>
 						  <td>${job.status}</td>
 						  <div>${editButton}${deleteButton}</div>`;
-
+						// SOLUTION EXAMPLE CODE: END
 						rowEntry.innerHTML = rowHTML;
 						children.push(rowEntry);
 					}
