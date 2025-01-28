@@ -58,7 +58,9 @@ app.use(
 );
 
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerYaml));
+// SOLUTION EXAMPLE CODE: START
 app.use(express.static('public'));
+// SOLUTION EXAMPLE CODE: END
 
 const apiRouter = express.Router();
 app.use('/api/v1', apiRouter);
